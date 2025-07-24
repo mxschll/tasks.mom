@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { DAVCalendar } from "tsdav";
 import { VTODO, ensureDatesAreObjects } from "@/lib/vtodo";
+import { TaskManager } from "@/lib/task-manager";
 import { 
   getCachedTasks, 
   setCachedTasks, 
@@ -23,7 +24,7 @@ import { Button } from "./ui/button";
 
 export default function AsyncTasksWrapper() {
   const [calendars, setCalendars] = useState<DAVCalendar[]>([]);
-  const [tasks, setTasks] = useState<VTODO[]>([]);
+  const [taskManager, setTaskManager] = useState<TaskManager>(new TaskManager());
   const [selectedCalendar, setSelectedCalendar] = useState<DAVCalendar | null>(null);
   const [isSyncingCalendars, setIsSyncingCalendars] = useState(false);
   const [isSyncingTasks, setIsSyncingTasks] = useState(false);
@@ -142,10 +143,10 @@ export default function AsyncTasksWrapper() {
     // Load cached tasks immediately (no loading spinner!)
     const cachedTasks = getCachedTasks(selectedCalendar.url);
     if (cachedTasks) {
-      setTasks(cachedTasks);
+      setTaskManager(new TaskManager(cachedTasks));
     } else {
       // Only show empty state if no cache - we'll load from server
-      setTasks([]);
+      setTaskManager(new TaskManager([]));
     }
 
     // Start background sync
@@ -165,7 +166,7 @@ export default function AsyncTasksWrapper() {
         // Only update UI if tasks have actually changed
         const currentTasks = cachedTasks || [];
         if (tasksHaveChanged(currentTasks, freshTasks)) {
-          setTasks(freshTasks);
+          setTaskManager(new TaskManager(freshTasks));
         }
 
         // Always update cache with fresh data
@@ -213,86 +214,87 @@ export default function AsyncTasksWrapper() {
   };
 
   const addTaskOptimistically = (task: VTODO) => {
-    setTasks(prevTasks => {
-      const newTasks = [task, ...prevTasks];
+    setTaskManager(prevManager => {
+      const newManager = prevManager.addTask(task);
+      const newTasks = Array.from(newManager.getTasks());
       // Cache optimistic update immediately
       if (selectedCalendar) {
         setCachedTasks(selectedCalendar.url, newTasks);
       }
-      return newTasks;
+      return newManager;
     });
   };
 
   const removeTaskOptimistically = (taskUid: string) => {
-    setTasks(prevTasks => {
-      const newTasks = prevTasks.filter(task => task.uid !== taskUid);
+    setTaskManager(prevManager => {
+      const newManager = prevManager.removeTask(taskUid);
+      const newTasks = Array.from(newManager.getTasks());
       // Cache optimistic update immediately
       if (selectedCalendar) {
         setCachedTasks(selectedCalendar.url, newTasks);
       }
-      return newTasks;
+      return newManager;
     });
   };
 
   const replaceOptimisticTask = (tempUid: string, realTask: VTODO) => {
     console.log('Replacing optimistic task:', tempUid, 'with real task:', realTask.uid);
-    setTasks(prevTasks => {
-      const newTasks = prevTasks.map(task => 
-        task.uid === tempUid ? realTask : task
-      );
+    setTaskManager(prevManager => {
+      const newManager = prevManager.replaceOptimisticTask(tempUid, realTask);
+      const newTasks = Array.from(newManager.getTasks());
       // Cache the update immediately
       if (selectedCalendar) {
         setCachedTasks(selectedCalendar.url, newTasks);
       }
-      return newTasks;
+      return newManager;
     });
   };
 
   const updateTaskOptimistically = (updatedTask: VTODO) => {
-    setTasks(prevTasks => {
-      const newTasks = prevTasks.map(task => 
-        task.uid === updatedTask.uid ? updatedTask : task
-      );
+    setTaskManager(prevManager => {
+      const newManager = prevManager.updateTask(updatedTask);
+      const newTasks = Array.from(newManager.getTasks());
       // Cache optimistic update immediately
       if (selectedCalendar) {
         setCachedTasks(selectedCalendar.url, newTasks);
       }
-      return newTasks;
+      return newManager;
     });
   };
 
   const revertTaskUpdate = (originalTask: VTODO) => {
-    setTasks(prevTasks => {
-      const newTasks = prevTasks.map(task => 
-        task.uid === originalTask.uid ? originalTask : task
-      );
+    setTaskManager(prevManager => {
+      const newManager = prevManager.updateTask(originalTask);
+      const newTasks = Array.from(newManager.getTasks());
       // Cache the revert immediately
       if (selectedCalendar) {
         setCachedTasks(selectedCalendar.url, newTasks);
       }
-      return newTasks;
+      return newManager;
     });
   };
 
   const deleteTaskOptimistically = (taskUid: string) => {
-    setTasks(prevTasks => {
-      const newTasks = prevTasks.filter(task => task.uid !== taskUid);
+    setTaskManager(prevManager => {
+      const newManager = prevManager.removeTask(taskUid);
+      const newTasks = Array.from(newManager.getTasks());
       // Cache optimistic delete immediately
       if (selectedCalendar) {
         setCachedTasks(selectedCalendar.url, newTasks);
       }
-      return newTasks;
+      return newManager;
     });
   };
 
   const revertTaskDelete = (deletedTask: VTODO) => {
-    setTasks(prevTasks => {
-      const newTasks = [...prevTasks, deletedTask];
+    setTaskManager(prevManager => {
+      const newManager = prevManager.addTask(deletedTask);
+      const newTasks = Array.from(newManager.getTasks());
       // Cache the revert immediately
       if (selectedCalendar) {
         setCachedTasks(selectedCalendar.url, newTasks);
       }
-      return newTasks;
+      return newManager;
     });
   };
 
@@ -308,7 +310,7 @@ export default function AsyncTasksWrapper() {
       
       const data = await response.json();
       const tasksWithDates = data.tasks.map(ensureDatesAreObjects);
-      setTasks(tasksWithDates);
+      setTaskManager(new TaskManager(tasksWithDates));
       setCachedTasks(selectedCalendar.url, tasksWithDates);
     } catch (error) {
       console.error("Failed to refresh tasks:", error);
@@ -397,7 +399,7 @@ export default function AsyncTasksWrapper() {
             />
             
             <TaskList 
-              tasks={tasks}
+              taskManager={taskManager}
               onTaskUpdated={updateTaskOptimistically}
               onTaskUpdateFailed={revertTaskUpdate}
               onTaskDeleted={deleteTaskOptimistically}

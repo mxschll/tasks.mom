@@ -170,6 +170,9 @@ export default function TaskForm({
     
     if (!taskTitle.trim()) return;
 
+    // Close advanced fields immediately when submitting
+    setShowAdvancedForm(false);
+
     // Combine date and time for due date
     let dueDate: Date | undefined;
     if (taskEndDate) {

@@ -1,4 +1,4 @@
-import { FilterType } from "@/types/task";
+import { TaskFilter } from "@/lib/task-manager";
 import { VTODO } from "@/lib/vtodo";
 
 export default function TaskTabs({
@@ -6,15 +6,15 @@ export default function TaskTabs({
     onChange,
     taskCounts
 }: {
-    currentFilter: FilterType;
-    onChange: (filter: FilterType) => void;
-    taskCounts: Record<FilterType, VTODO[]>;
+    currentFilter: TaskFilter;
+    onChange: (filter: TaskFilter) => void;
+    taskCounts: Record<TaskFilter, VTODO[]>;
 }) {
     const tabs = [
-        { id: "all" as FilterType, label: "All" },
-        { id: "today" as FilterType, label: "Today" },
-        { id: "scheduled" as FilterType, label: "Scheduled" },
-        { id: "completed" as FilterType, label: "Completed" },
+        { id: "all" as TaskFilter, label: "All" },
+        { id: "today" as TaskFilter, label: "Today" },
+        { id: "scheduled" as TaskFilter, label: "Scheduled" },
+        { id: "completed" as TaskFilter, label: "Completed" },
     ];
 
     return (

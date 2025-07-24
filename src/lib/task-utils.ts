@@ -16,21 +16,24 @@ export function getPriorityIcon(priority: string): string {
   }
 }
 
-export function formatDate(date: Date): string {
+export function formatDate(date: Date | string): string {
+  // Convert string to Date object if needed
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+
   const today = new Date();
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
   
-  const isToday = date.toDateString() === today.toDateString();
-  const isTomorrow = date.toDateString() === tomorrow.toDateString();
+  const isToday = dateObj.toDateString() === today.toDateString();
+  const isTomorrow = dateObj.toDateString() === tomorrow.toDateString();
   
   if (isToday) return 'Today';
   if (isTomorrow) return 'Tomorrow';
   
-  return date.toLocaleDateString('en-US', { 
+  return dateObj.toLocaleDateString('en-US', { 
     month: 'short', 
     day: 'numeric',
-    year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined
+    year: dateObj.getFullYear() !== today.getFullYear() ? 'numeric' : undefined
   });
 }
 

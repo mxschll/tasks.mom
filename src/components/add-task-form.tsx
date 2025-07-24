@@ -2,7 +2,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import TaskForm, { TaskFormData } from "./task-form";
-import { VTODO } from "@/lib/vtodo";
+import { VTODO, ensureDatesAreObjects } from "@/lib/vtodo";
 
 interface AddTaskFormProps {
   selectedCalendarUrl?: string;
@@ -50,12 +50,14 @@ export default function AddTaskForm({
     }
 
     // Create optimistic task and add it immediately to UI
-    const optimisticTask = createOptimisticTask(
+    const optimisticTask: VTODO = createOptimisticTask(
       formData.summary,
       formData.description,
       formData.dueDate,
       formData.priority
     );
+
+    console.log(optimisticTask);
 
     onTaskAddedOptimistically(optimisticTask);
 
@@ -82,7 +84,9 @@ export default function AddTaskForm({
       const result = await response.json();
 
       if (result.success && result.task) {
-        onTaskReplaceOptimistic(optimisticTask.uid, result.task);
+        // Ensure dates are proper Date objects after JSON deserialization
+        const taskWithDates = ensureDatesAreObjects(result.task);
+        onTaskReplaceOptimistic(optimisticTask.uid, taskWithDates);
         onTaskAdded();
       } else {
         throw new Error('Invalid server response');
