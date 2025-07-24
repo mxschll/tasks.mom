@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,7 +12,6 @@ import { VTODO } from "@/lib/vtodo";
 interface TaskFormProps {
   mode: 'create' | 'edit';
   task?: VTODO;
-  selectedCalendarUrl?: string;
   onSubmit: (taskData: TaskFormData) => Promise<void>;
   onCancel?: () => void;
   isSubmitting?: boolean;
@@ -73,7 +72,6 @@ const extractTimeFromTask = (task?: VTODO): string => {
 export default function TaskForm({ 
   mode, 
   task, 
-  selectedCalendarUrl, 
   onSubmit, 
   onCancel, 
   isSubmitting = false 
@@ -110,12 +108,12 @@ export default function TaskForm({
     </div>
   );
 
-  const renderSelectField = (
+  const renderSelectField = <T extends string>(
     id: string,
     label: string,
-    value: string,
-    onChange: (value: any) => void,
-    options: readonly { value: string; label: string }[]
+    value: T,
+    onChange: (value: T) => void,
+    options: readonly { value: T; label: string }[]
   ) => (
     <div>
       <Label htmlFor={id} className="text-sm text-gray-600">{label}</Label>

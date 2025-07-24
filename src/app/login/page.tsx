@@ -32,7 +32,7 @@ export default function LoginPage() {
         }
       } catch (error) {
         // Session check failed, user needs to login
-        console.log('No existing session found');
+        console.log('No existing session found: ' + error);
       } finally {
         setIsCheckingSession(false);
       }

@@ -91,6 +91,7 @@ export function isCacheStale(calendarUrl: string): boolean {
     const cacheAge = Date.now() - parseInt(timestamp);
     return cacheAge > CACHE_EXPIRY_MS;
   } catch (error) {
+    console.error('Failed to check cache age:', error);
     return true;
   }
 }
@@ -135,6 +136,7 @@ export function isCalendarCacheStale(): boolean {
     const cacheAge = Date.now() - parseInt(timestamp);
     return cacheAge > CACHE_EXPIRY_MS;
   } catch (error) {
+    console.error('Failed to check calendar cache age:', error);
     return true;
   }
 }

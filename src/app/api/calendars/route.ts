@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { getIronSession } from "iron-session";
 import { SessionData, sessionOptions } from "@/lib/session";
 import { fetchCalendars, getClient } from "@/lib/caldav";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const cookieStore = await cookies();
     const session = await getIronSession<SessionData>(cookieStore, sessionOptions);

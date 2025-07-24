@@ -27,10 +27,10 @@ export default async function HomePage() {
         <CardContent className="space-y-6">
           <div className="text-center space-y-4">
             <p className="text-gray-600 leading-relaxed">
-              While services like Fastmail don't provide dedicated task management, 
+              While services like Fastmail don&apos;t provide dedicated task management, 
               they do support CalDAV task synchronization. This means you can use 
               Apple Tasks on your iPhone, sync through your CalDAV server, and 
-              manage everything seamlessly on your PC with this web interface.
+              manage everything seamlessly on your PC with this web interface. 
             </p>
           </div>
           

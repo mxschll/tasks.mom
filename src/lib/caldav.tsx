@@ -45,14 +45,13 @@ export async function fetchTasks(client: DAVClient, calendar?: DAVCalendar) {
     
     if (!targetCalendar) {
         const calendars = await fetchCalendars(client);
-        targetCalendar = calendars[1]; // fallback to default calendar
+        targetCalendar = calendars[0]; // fallback to default calendar
     }
 
     const todos = await fetchTodos(client, targetCalendar);
 
     const response: VTODO[] = [];
     todos.forEach((todo) => {
-        console.log(todo);
         response.push(parseVTODO(todo.data));
     });
 

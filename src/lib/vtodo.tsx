@@ -19,7 +19,7 @@ export type VTODO = {
 
 // Helper function to ensure dates are Date objects after JSON serialization
 export function ensureDatesAreObjects(todo: VTODO): VTODO {
-    const ensureDate = (dateValue: any): Date | undefined => {
+    const ensureDate = (dateValue: Date | string | undefined): Date | undefined => {
         if (!dateValue) return undefined;
         if (dateValue instanceof Date) return dateValue;
         if (typeof dateValue === 'string') return new Date(dateValue);
@@ -37,7 +37,7 @@ export function ensureDatesAreObjects(todo: VTODO): VTODO {
 }
 
 export function parseVTODO(data: string): VTODO {
-    let todo: VTODO = {
+    const todo: VTODO = {
         uid: "",
         summary: "",
         status: "NEEDS-ACTION",

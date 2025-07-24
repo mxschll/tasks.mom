@@ -83,6 +83,7 @@ export default function AddTaskForm({
 
       if (result.success && result.task) {
         onTaskReplaceOptimistic(optimisticTask.uid, result.task);
+        onTaskAdded();
       } else {
         throw new Error('Invalid server response');
       }
@@ -100,7 +101,7 @@ export default function AddTaskForm({
   return (
     <Card className="mb-6">
       <CardContent>
-        <TaskForm mode="create" selectedCalendarUrl={selectedCalendarUrl} onSubmit={handleSubmit} />
+        <TaskForm mode="create" onSubmit={handleSubmit} />
       </CardContent>
     </Card>
   );

@@ -284,7 +284,9 @@ export default function TaskItem({
               size="icon"
               onClick={(e) => {
                 e.stopPropagation()
-                canEdit && setIsEditing(true)
+                if (canEdit) {
+                  setIsEditing(true)
+                }
               }}
               className="text-gray-400 hover:text-blue-500 shrink-0"
               disabled={!canEdit}
@@ -297,7 +299,9 @@ export default function TaskItem({
               size="icon"
               onClick={(e) => {
                 e.stopPropagation()
-                canEdit && handleDelete()
+                if (canEdit) {
+                  handleDelete()
+                }
               }}
               className="text-gray-400 hover:text-red-500 shrink-0"
               disabled={!canEdit}
